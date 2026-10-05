@@ -1,0 +1,10 @@
+{
+  "description": "This platform offers veterinary students and professionals comprehensive resources on equine distal thoracic limb anatomy, including images, and diagnostic guidance.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

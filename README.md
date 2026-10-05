@@ -1,4 +1,4 @@
-# Membro Equino Ensino
+# Membro Torácico Distal Equino
 
 Aplicação web interativa para estudo da anatomia, patologias e diagnóstico por imagem do membro torácico distal equino.
 
