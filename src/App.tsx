@@ -5,6 +5,7 @@ import {
   imagingModalities,
   projectAbout,
 } from "./data/content";
+import ZoomableImage from "./components/ZoomableImage";
 import type { Pathology, SubSection } from "./data/content";
 import radiografia from "./assets/inicio/radiografia.png";
 import carpo_dorsal from "./assets/anatomia/carpo_dorsal.png";
@@ -36,33 +37,31 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-full overflow-hidden" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>
+    <div className="flex h-dvh flex-col overflow-hidden md:flex-row" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>
       {/* Sidebar */}
       <aside
-        className={`flex flex-col shrink-0 transition-all duration-300 ${sidebarOpen ? "w-64" : "w-16"}`}
+        className={`flex w-full shrink-0 flex-col md:h-full md:transition-all md:duration-300 ${sidebarOpen ? "md:w-64" : "md:w-16"}`}
         style={{ background: "#1c3d30", color: "#e8e3d8" }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-4 py-5 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center gap-3 border-b px-3 py-3 md:px-4 md:py-5" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
           <div className="shrink-0 w-8 h-8 rounded flex items-center justify-center text-white font-bold text-sm" style={{ background: "#b87333" }}>
             <HorseIcon />
           </div>
-          {sidebarOpen && (
-            <div>
+          <div className={sidebarOpen ? "" : "md:hidden"}>
               <p className="text-xs font-semibold tracking-widest uppercase opacity-60" style={{ fontFamily: "'Source Sans 3', sans-serif" }}>
                 Anatomia
               </p>
               <p className="text-sm font-semibold leading-tight" style={{ fontFamily: "'Fraunces', serif" }}>
                 Membro Torácico Distal
               </p>
-            </div>
-          )}
+          </div>
           {sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(false)}
               aria-label="Recolher menu"
               title="Recolher menu"
-              className="ml-auto p-2 rounded opacity-60 hover:opacity-100 hover:bg-white/10 transition-colors"
+              className="ml-auto hidden rounded p-2 opacity-60 transition-colors hover:bg-white/10 hover:opacity-100 md:block"
             >
               <ChevronIcon dir="left" />
             </button>
@@ -70,13 +69,13 @@ export default function App() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4">
+        <nav className="flex flex-row overflow-x-auto py-2 md:flex-1 md:flex-col md:overflow-x-hidden md:overflow-y-auto md:py-4">
           {!sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Expandir menu"
               title="Expandir menu"
-              className="flex items-center justify-center w-10 h-10 mx-auto mb-3 rounded opacity-60 hover:opacity-100 hover:bg-white/10 transition-colors"
+              className="mx-2 hidden h-10 w-10 shrink-0 items-center justify-center rounded opacity-60 transition-colors hover:bg-white/10 hover:opacity-100 md:flex md:mx-auto md:mb-3"
             >
               <ChevronIcon dir="right" />
             </button>
@@ -97,7 +96,7 @@ export default function App() {
           />
 
           {/* Pathologies group */}
-          <div className="mt-2">
+          <div className="shrink-0 md:mt-2">
             <NavItem
               icon={<StethoscopeIcon />}
               label="Patologias"
@@ -106,7 +105,7 @@ export default function App() {
               onClick={() => navigate("patologias", "fratura-mc2-mc4")}
             />
             {sidebarOpen && activeView === "patologias" && (
-              <div className="ml-9 mt-1 space-y-0.5 pr-2">
+              <div className="hidden space-y-0.5 pr-2 md:ml-9 md:mt-1 md:block">
                 {allPathologies.map((p) => (
                   <button
                     key={p.id}
@@ -131,7 +130,7 @@ export default function App() {
             collapsed={!sidebarOpen}
             onClick={() => navigate("imagem")}
           />
-          <div className="mt-auto pt-2">
+          <div className="shrink-0 pt-2 md:mt-auto">
             <NavItem
               icon={<InfoIcon />}
               label="Sobre"
@@ -143,21 +142,38 @@ export default function App() {
         </nav>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t text-xs opacity-40" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        <div className="hidden border-t px-4 py-3 text-xs opacity-40 md:block" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
           {sidebarOpen && <p>Ciências Agrárias · UFAPE</p>}
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto" style={{ background: "#f5f2eb" }}>
+      <main className="min-h-0 flex-1 overflow-y-auto" style={{ background: "#f5f2eb" }}>
         {activeView === "home" && <HomeView onNavigate={navigate} />}
         {activeView === "anatomia" && <AnatomyView />}
         {activeView === "patologias" && activePathology && (
-          <PathologyView
-            pathology={activePathology}
-            activeSectionId={activeSectionId}
-            setActiveSectionId={setActiveSectionId}
-          />
+          <>
+            <div className="flex gap-1 overflow-x-auto border-b px-3 py-2 md:hidden" style={{ background: "#1c3d30", borderColor: "rgba(255,255,255,0.08)" }}>
+              {allPathologies.map((pathology) => (
+                <button
+                  key={pathology.id}
+                  onClick={() => navigate("patologias", pathology.id)}
+                  className={`shrink-0 rounded px-3 py-2 text-xs ${
+                    activePathologyId === pathology.id
+                      ? "bg-white/15 text-white"
+                      : "text-white/70"
+                  }`}
+                >
+                  {pathology.shortTitle}
+                </button>
+              ))}
+            </div>
+            <PathologyView
+              pathology={activePathology}
+              activeSectionId={activeSectionId}
+              setActiveSectionId={setActiveSectionId}
+            />
+          </>
         )}
         {activeView === "imagem" && <ImagingView />}
         {activeView === "sobre" && <AboutView />}
@@ -183,18 +199,18 @@ function HomeView({ onNavigate }: { onNavigate: (view: View, pathologyId?: strin
             backgroundPosition: "center 40%",
           }}
         />
-        <div className="relative z-10 max-w-4xl mx-auto px-8 py-20">
+        <div className="relative z-10 mx-auto max-w-4xl px-5 py-14 sm:px-8 sm:py-20">
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "#b87333" }}>
             Ciências Agrárias · UFAPE
           </p>
-          <h1 className="text-5xl font-light leading-tight text-white mb-4" style={{ fontFamily: "'Fraunces', serif" }}>
+          <h1 className="mb-4 text-4xl font-light leading-tight text-white sm:text-5xl" style={{ fontFamily: "'Fraunces', serif" }}>
             Anatomia Aplicada do<br />
             <em>Membro Torácico Distal</em>
           </h1>
           <p className="text-white/70 text-lg max-w-xl leading-relaxed">
             Guia interativo sobre anatomia, patologias e diagnóstico por imagem da região distal do membro torácico equino.
           </p>
-          <div className="flex gap-3 mt-8">
+          <div className="mt-8 flex flex-wrap gap-3">
             <button
               onClick={() => onNavigate("anatomia")}
               className="px-5 py-2.5 text-sm font-semibold rounded transition-colors"
@@ -213,11 +229,11 @@ function HomeView({ onNavigate }: { onNavigate: (view: View, pathologyId?: strin
       </div>
 
       {/* Cards */}
-      <div className="max-w-4xl mx-auto px-8 py-12">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-8 sm:py-12">
         <h2 className="text-2xl font-semibold mb-8" style={{ fontFamily: "'Fraunces', serif", color: "#1c3d30" }}>
           Conteúdo da Plataforma
         </h2>
-        <div className="grid grid-cols-1 gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <HomeCard
             title="Anatomia"
             desc="Estudo sistemático das estruturas do membro torácico distal: ossos, articulações e tendões, com ênfase em anatomia aplicada."
@@ -294,7 +310,7 @@ function HomeView({ onNavigate }: { onNavigate: (view: View, pathologyId?: strin
         </div>
 
         {/* Anatomy preview */}
-        <div className="mt-12 grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div
             className="relative rounded overflow-hidden"
             style={{ background: "#1c3d30", minHeight: 200 }}
@@ -388,7 +404,7 @@ function AnatomyView() {
         subtitle="Carpo · Metacarpo · Boleto · Quartela · Casco"
       />
 
-      <div className="max-w-5xl mx-auto px-8 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-8">
         {/* Region tabs */}
         <div className="flex gap-1 mb-8 overflow-x-auto pb-1">
           {anatomyRegions.map((r) => (
@@ -408,7 +424,7 @@ function AnatomyView() {
         </div>
 
         {/* Region content */}
-        <div className="grid gap-6" style={{ gridTemplateColumns: "1fr 1fr" }}>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="rounded border p-6" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
             <p
               className="text-xs font-semibold tracking-widest uppercase mb-2"
@@ -444,11 +460,10 @@ function AnatomyView() {
             className="rounded overflow-hidden relative"
             style={{ background: "#d4cfc4", minHeight: 300 }}
           >
-            <img
+            <ZoomableImage
               src={regionImage(region.id)}
               alt={`Anatomia — ${region.name}`}
-              className="w-full h-full object-cover"
-              style={{ minHeight: 300 }}
+              className="w-full h-full object-contain"
             />
             <div
               className="absolute bottom-0 left-0 right-0 px-4 py-3 text-xs text-white/70"
@@ -464,7 +479,7 @@ function AnatomyView() {
           <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: "'Fraunces', serif", color: "#1c3d30" }}>
             Todas as Regiões
           </h3>
-          <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {anatomyRegions.map((r) => (
               <button
                 key={r.id}
@@ -524,18 +539,18 @@ function PathologyView({
         subtitle={pathology.overview}
       />
 
-      <div className="max-w-5xl mx-auto px-8 py-8 flex gap-8">
+      <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 sm:px-8 sm:py-8 lg:flex-row lg:gap-8">
         {/* Section nav */}
-        <aside className="shrink-0 w-44">
-          <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "#6b6b60" }}>
+        <aside className="w-full shrink-0 lg:w-44">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest lg:mb-3" style={{ color: "#6b6b60" }}>
             Seções
           </p>
-          <nav className="space-y-0.5">
+          <nav className="flex gap-1 overflow-x-auto pb-1 lg:block lg:space-y-0.5 lg:overflow-visible">
             {pathology.sections.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setActiveSectionId(s.id)}
-                className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                className={`w-auto shrink-0 whitespace-nowrap rounded px-3 py-2 text-left text-sm transition-colors lg:w-full ${
                   activeSectionId === s.id
                     ? "font-semibold"
                     : "hover:bg-black/5"
@@ -549,10 +564,10 @@ function PathologyView({
                 {s.title}
               </button>
             ))}
-            <div className="pt-3 mt-3 border-t" style={{ borderColor: "#d4cfc4" }}>
+            <div className="shrink-0 border-l pl-1 lg:mt-3 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-3" style={{ borderColor: "#d4cfc4" }}>
               <button
                 onClick={() => setActiveSectionId("refs")}
-                className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                className={`w-auto shrink-0 whitespace-nowrap rounded px-3 py-2 text-left text-sm transition-colors lg:w-full ${
                   activeSectionId === "refs" ? "font-semibold" : "hover:bg-black/5"
                 }`}
                 style={
@@ -581,50 +596,11 @@ function PathologyView({
 }
 
 function SectionContent({ section }: { section: SubSection }) {
-  return (
-    <div className="rounded border p-7" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
-      <h2 className="text-2xl font-semibold mb-5" style={{ fontFamily: "'Fraunces', serif", color: "#1c3d30" }}>
-        {section.title}
-      </h2>
-
-      {section.content && (
-        <p className="text-sm leading-relaxed mb-5 whitespace-pre-line" style={{ color: "#3a3a35" }}>
-          {section.content}
-        </p>
-      )}
-
-      {section.items && (
-        <ul className="space-y-2 mb-5">
-          {section.items.map((item: string) => (
-            <li key={item} className="flex gap-2.5 text-sm items-start">
-              <span className="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#b87333" }} />
-              <span style={{ color: "#3a3a35" }}>{item}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {section.subsections?.map((sub) => (
-        <div key={sub.title} className="mb-6 last:mb-0">
-          <div
-            className="flex items-center gap-2 mb-3 pb-2 border-b"
-            style={{ borderColor: "#e8e3d8" }}
-          >
-            <h3 className="text-sm font-semibold" style={{ color: "#1c3d30" }}>
-              {sub.title}
-            </h3>
-          </div>
-          <ul className="space-y-2">
-            {sub.items.map((item: string) => (
-              <li key={item} className="flex gap-2.5 text-sm items-start">
-                <span className="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#1c3d30" }} />
-                <span style={{ color: "#3a3a35" }}>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-
+ return (
+    <div
+      className="rounded border p-5 sm:p-7"
+      style={{ background: "#fff", borderColor: "#d4cfc4" }}
+    >
       {section.images?.map((image, index) => (
         <div
           key={`${image.src}-${index}`}
@@ -632,7 +608,7 @@ function SectionContent({ section }: { section: SubSection }) {
           style={{ borderColor: "#e8e3d8" }}
         >
           <figure className="m-0">
-            <img
+            <ZoomableImage
               src={image.src}
               alt={image.alt}
               className="w-full max-h-[400px] object-contain rounded"
@@ -679,7 +655,7 @@ function SectionContent({ section }: { section: SubSection }) {
 
 function ReferencesSection({ refs }: { refs: string[] }) {
   return (
-    <div className="rounded border p-7" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
+    <div className="rounded border p-5 sm:p-7" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
       <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: "#b87333" }}>
         Bibliografia
       </p>
@@ -721,7 +697,7 @@ function ImagingView() {
         subtitle="Técnicas aplicadas ao diagnóstico do membro torácico distal equino"
       />
 
-      <div className="max-w-5xl mx-auto px-8 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-8">
         {/* Modality tabs */}
         <div className="flex gap-2 mb-8 flex-wrap">
           {imagingModalities.map((m) => (
@@ -746,9 +722,9 @@ function ImagingView() {
           ))}
         </div>
 
-        <div className="grid gap-6" style={{ gridTemplateColumns: "1fr 1fr" }}>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Info */}
-          <div className="rounded border p-6" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
+          <div className="rounded border p-4 sm:p-6" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
             <p
               className="text-xs font-semibold tracking-widest uppercase mb-2"
               style={{ color: "#b87333", fontFamily: "'JetBrains Mono', monospace" }}
@@ -806,7 +782,7 @@ function ImagingView() {
                 className="m-0 overflow-hidden rounded border p-4"
                 style={{ background: "#fff", borderColor: "#d4cfc4" }}
               >
-                <img
+                <ZoomableImage
                   src={image.src}
                   alt={image.alt}
                   className="w-full max-h-[400px] object-contain rounded"
@@ -843,8 +819,8 @@ function ImagingView() {
           <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: "'Fraunces', serif", color: "#1c3d30" }}>
             Comparativo de Modalidades
           </h3>
-          <div className="rounded border overflow-hidden" style={{ borderColor: "#d4cfc4" }}>
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded border" style={{ borderColor: "#d4cfc4" }}>
+            <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr style={{ background: "#1c3d30", color: "#e8e3d8" }}>
                   <th className="text-left px-4 py-3 font-semibold">Modalidade</th>
@@ -897,8 +873,8 @@ function AboutView() {
         subtitle="Informações gerais sobre a plataforma e a equipe envolvida na criação deste material educativo."
       />
 
-      <div className="max-w-4xl mx-auto px-8 py-10">
-        <div className="rounded border p-7" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-8 sm:py-10">
+        <div className="rounded border p-5 sm:p-7" style={{ background: "#fff", borderColor: "#d4cfc4" }}>
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "#b87333" }}>
             Projeto
           </p>
@@ -943,13 +919,13 @@ function AboutView() {
 function PageHeader({ label, title, subtitle }: { label: string; title: string; subtitle: string }) {
   return (
     <div
-      className="border-b px-8 py-8"
+      className="border-b px-4 py-6 sm:px-8 sm:py-8"
       style={{ background: "#fff", borderColor: "#d4cfc4" }}
     >
       <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: "#b87333" }}>
         {label}
       </p>
-      <h1 className="text-3xl font-semibold mb-2" style={{ fontFamily: "'Fraunces', serif", color: "#1c3d30" }}>
+      <h1 className="mb-2 text-2xl font-semibold sm:text-3xl" style={{ fontFamily: "'Fraunces', serif", color: "#1c3d30" }}>
         {title}
       </h1>
       <p className="text-sm leading-relaxed max-w-2xl" style={{ color: "#6b6b60" }}>
@@ -968,12 +944,12 @@ function NavItem({
     <button
       onClick={onClick}
       title={collapsed ? label : undefined}
-      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+      className={`flex w-auto shrink-0 items-center gap-2 px-3 py-2 text-xs transition-colors md:w-full md:gap-3 md:px-4 md:py-2.5 md:text-sm ${
         active ? "bg-white/10 text-white" : "text-white/60 hover:text-white hover:bg-white/5"
       }`}
     >
       <span className="shrink-0 w-5 h-5">{icon}</span>
-      {!collapsed && <span className="font-medium">{label}</span>}
+      {!collapsed && <span className="whitespace-nowrap font-medium md:whitespace-normal">{label}</span>}
     </button>
   );
 }
